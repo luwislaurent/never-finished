@@ -2,26 +2,404 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
-  <title>Same Walk, Different Day</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALK — Never Finished</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --yellow: #f9d329;
+}
+
+body {
+  margin: 0;
+  background: #080808;
+  color: white;
+  font-family: Futura, "Century Gothic", Arial, sans-serif;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+header {
+  position: absolute;
+  top: 30px;
+  left: 4%;
+  right: 4%;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #999;
+  z-index: 2;
+}
+
+main {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero {
+  width: 100%;
+  position: relative;
+  padding: 80px 3% 100px;
+}
+
+.word {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: clamp(80px, 24vw, 380px);
+  font-weight: 900;
+  letter-spacing: -0.085em;
+  line-height: 1;
+  user-select: none;
+}
+
+.letter {
+  position: relative;
+  z-index: 1;
+  transition: color .25s;
+}
+
+.letter:hover {
+  color: var(--yellow);
+}
+
+.route {
+  position: absolute;
+  inset: 10% 3% 0;
+  width: 94%;
+  height: 90%;
+  overflow: visible;
+  z-index: 3;
+  pointer-events: none;
+}
+
+#routePath {
+  fill: none;
+  stroke: var(--yellow);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px #f9d32955);
+  transition: stroke-dashoffset .55s ease;
+}
+
+.stop {
+  fill: var(--yellow);
+  stroke: #080808;
+  stroke-width: 3;
+  pointer-events: all;
+  cursor: pointer;
+  transition: r .2s;
+}
+
+.stop:hover,
+.stop:focus {
+  r: 15;
+  outline: none;
+}
+
+.bottom {
+  margin: 0 4% 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.hint {
+  color: var(--yellow);
+}
+
+.counter {
+  color: #888;
+}
+
+.info {
+  position: fixed;
+  left: 4%;
+  bottom: 100px;
+  width: min(350px, 90vw);
+  padding: 24px;
+  border: 1px solid #555;
+  background: #141414;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px);
+  transition: .3s;
+}
+
+.info.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.info .number {
+  font-size: 11px;
+  color: var(--yellow);
+  letter-spacing: 2px;
+}
+
+.info h2 {
+  font-size: 30px;
+  margin: 14px 0 10px;
+}
+
+.info p {
+  color: #aaa;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.close {
+  float: right;
+  color: white;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Geel wandelmannetje als cursor */
+#walker {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 54px;
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+  display: none;
+  filter: drop-shadow(0 2px 4px #000);
+}
+
+@media (hover: none) {
+  body {
+    cursor: auto;
+  }
+
+  #walker {
+    display: none !important;
+  }
+}
+
+@media (max-width: 700px) {
+  header {
+    font-size: 8px;
+  }
+
+  .hero {
+    padding: 90px 2% 100px;
+  }
+
+  .word {
+    font-size: 25vw;
+  }
+
+  .bottom {
+    font-size: 9px;
+  }
+
+  .info {
+    bottom: 80px;
+  }
+}
+</style>
 </head>
 
 <body>
-  <h1>Same Walk, Different Day</h1>
 
-  <p>
-    Elke dag wandel ik dezelfde route
-    en fotografeer ik wat er verandert.
-  </p>
+<header>
+  <span>NEVER FINISHED / WALK ARCHIVE</span>
+  <span>2026 — ∞</span>
+</header>
 
-  <h2>Mijn edities</h2>
+<main>
+  <section class="hero">
+    <div class="word" aria-label="WALK">
+      <span class="letter">W</span>
+      <span class="letter">A</span>
+      <span class="letter">L</span>
+      <span class="letter">K</span>
+    </div>
 
-  <nav>
-    <a href="edities/01.html">Editie 01</a>
-    <a href="edities/02.html">Editie 02</a>
-    <a href="edities/03.html">Editie 03</a>
-  </nav>
+    <svg class="route"
+         viewBox="0 0 1000 420"
+         preserveAspectRatio="none"
+         aria-label="Interactieve wandelroute">
+      <path id="routePath"
+        d="M 60 310
+           C 180 370, 220 100, 350 220
+           S 500 390, 610 190
+           S 790 330, 940 90"/>
+      <g id="stops"></g>
+    </svg>
+  </section>
+
+  <div class="bottom">
+    <span class="hint">
+      HOVER OVER WALK / CLICK THE DOTS
+    </span>
+    <span class="counter" id="counter">
+      04 WALKS RECORDED
+    </span>
+  </div>
+</main>
+
+<!-- Informatie die opent bij een klik -->
+<div class="info" id="info">
+  <button class="close" id="close"
+          aria-label="Sluiten">×</button>
+  <div class="number" id="walkNumber"></div>
+  <h2 id="walkDate"></h2>
+  <p id="walkDescription"></p>
+</div>
+
+<!-- Geel Street View-achtig mannetje -->
+<div id="walker">
+  <svg viewBox="0 0 36 54" width="36" height="54">
+    <circle cx="18" cy="8" r="7" fill="#f9d329"/>
+    <rect x="12" y="17" width="12" height="19"
+          rx="5" fill="#f9d329"/>
+    <path d="M12 22 L5 35 M24 22 L31 35
+             M15 34 L11 51 M21 34 L25 51"
+          stroke="#f9d329"
+          stroke-width="6"
+          stroke-linecap="round"
+          fill="none"/>
+  </svg>
+</div>
+
+<script>
+// PAS HIER JE EIGEN WANDELINGEN AAN
+const walks = [
+  {
+    date: "12 OKTOBER 2026",
+    description: "Eerste wandeling. De route vastgelegd.",
+    position: 0.13
+  },
+  {
+    date: "13 OKTOBER 2026",
+    description: "Nieuwe graffiti ontdekt op de route.",
+    position: 0.38
+  },
+  {
+    date: "14 OKTOBER 2026",
+    description: "Een werf is veranderd sinds gisteren.",
+    position: 0.64
+  },
+  {
+    date: "15 OKTOBER 2026",
+    description: "Een vuilbak staat vandaag helemaal vol.",
+    position: 0.91
+  }
+];
+
+const path = document.getElementById("routePath");
+const length = path.getTotalLength();
+const letters = document.querySelectorAll(".letter");
+const stopsGroup = document.getElementById("stops");
+const info = document.getElementById("info");
+
+path.style.strokeDasharray = length;
+path.style.strokeDashoffset = length;
+
+// Hoeveel van de route zichtbaar is
+function traceRoute(progress) {
+  path.style.strokeDashoffset =
+    length * (1 - progress);
+}
+
+// Hover over W, A, L, K
+letters.forEach((letter, index) => {
+  letter.addEventListener("mouseenter", () => {
+    traceRoute((index + 1) / letters.length);
+  });
+
+  letter.addEventListener("click", () => {
+    traceRoute((index + 1) / letters.length);
+  });
+});
+
+// Klikbare punten maken
+walks.forEach((walk, index) => {
+  const point = path.getPointAtLength(
+    length * walk.position
+  );
+
+  const circle = document.createElementNS(
+    "http://www.w3.org/2000/svg", "circle"
+  );
+
+  circle.setAttribute("cx", point.x);
+  circle.setAttribute("cy", point.y);
+  circle.setAttribute("r", 10);
+  circle.setAttribute("class", "stop");
+  circle.setAttribute("tabindex", "0");
+  circle.setAttribute("role", "button");
+  circle.setAttribute("aria-label",
+    "Wandeling " + (index + 1) + ": " + walk.date);
+
+  function showWalk() {
+    traceRoute(walk.position);
+    document.getElementById("walkNumber").textContent =
+      "WALK " + String(index + 1).padStart(2, "0");
+    document.getElementById("walkDate").textContent =
+      walk.date;
+    document.getElementById("walkDescription").textContent =
+      walk.description;
+    info.classList.add("active");
+  }
+
+  circle.addEventListener("click", showWalk);
+  circle.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      showWalk();
+    }
+  });
+
+  stopsGroup.appendChild(circle);
+});
+
+document.getElementById("close").addEventListener(
+  "click", () => info.classList.remove("active")
+);
+
+document.getElementById("counter").textContent =
+  String(walks.length).padStart(2, "0") +
+  " WALKS RECORDED";
+
+// Cursor die de muis volgt
+const walker = document.getElementById("walker");
+
+document.addEventListener("pointermove", event => {
+  if (event.pointerType === "mouse") {
+    walker.style.display = "block";
+    walker.style.left = event.clientX + "px";
+    walker.style.top = event.clientY + "px";
+  }
+});
+
+document.addEventListener("pointerleave", () => {
+  walker.style.display = "none";
+});
+</script>
+
 </body>
 </html>
+
