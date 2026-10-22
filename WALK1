@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WALK — NEVER FINISHED</title>
+
+<style>
+  :root {
+    --black: #000;
+    --white: #f5f5f5;
+    --yellow: #eaff00;
+    --grey: #777;
+    --progress: 0%;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  body {
+    font-family: Futura, "Arial Black", Arial, sans-serif;
+    cursor: crosshair;
+  }
+
+  /* ALLES BLIJFT BINNEN EEN SCHERM */
+
+  .screen {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    padding: clamp(16px, 2.5vw, 36px);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    overflow: hidden;
+  }
+
+  /* KLEINE BOVENTEKST */
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 10px;
+    font-size: clamp(9px, 0.8vw, 12px);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .muted {
+    color: var(--grey);
+  }
+
+  /* DE TYPOGRAFIE IS DE ROUTE */
+
+  .stage {
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: crosshair;
+    touch-action: pan-y;
+  }
+
+  .word {
+    display: block;
+    width: 100%;
+    max-height: 100%;
+    overflow: visible;
+    user-select: none;
+  }
+
+  .word text {
+    font-family: Futura, "Arial Black", Arial, sans-serif;
+    font-weight: 900;
+    paint-order: stroke;
+    fill: none;
+    user-select: none;
+  }
+
+  /* NOG NIET GEWANDELD: STIPPELLIJN */
+
+  .unfinished {
+    stroke: var(--white);
+    stroke-width: 2.7;
+    stroke-dasharray: 0.5 7;
+    stroke-linecap: round;
+    opacity: 0.75;
+  }
+
+  /* AFGEWANDELD: VOLLE GELE LIJN */
+
+  .finished {
+    stroke: var(--yellow);
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  /* DE PIN BESTAAT OOK UIT TEKST */
+
+  .pin {
+    position: absolute;
+    top: 17%;
+    left: var(--progress);
+    transform: translateX(-50%);
+    pointer-events: none;
+    color: var(--yellow);
+    font-family: Arial, sans-serif;
+    font-size: clamp(16px, 2vw, 27px);
+    line-height: 1;
+    transition: left 0.12s linear;
+    opacity: 0;
+  }
+
+  .stage:hover .pin,
+  .stage:focus-within .pin,
+  .stage.pinned .pin {
+    opacity: 1;
+  }
+
+  /* INFORMATIE ONDERAAN */
+
+  footer {
+    display: grid;
+    gap: clamp(10px, 2vh, 22px);
+    padding-bottom: 2px;
+  }
+
+  .info {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .date {
+    font-size: clamp(22px, 3.5vw, 52px);
+    font-weight: 900;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .observation {
+    max-width: 310px;
+    text-align: right;
+    font-size: clamp(10px, 0.9vw, 13px);
+    line-height: 1.4;
+    color: #b0b0b0;
+  }
+
+  .details {
+    display: flex;
+    justify-content: space-between;
+    font-size: clamp(9px, 0.75vw, 12px);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  /* TIJDLIJN */
+
+  input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 22px;
+    margin: 0;
+    cursor: ew-resize;
+    background: transparent;
+    touch-action: none;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px;
+    background:
+      linear-gradient(
+        to right,
+        var(--yellow) 0%,
+        var(--yellow) var(--progress),
+        transparent var(--progress),
+        transparent 100%
+      ),
+      repeating-linear-gradient(
+        to right,
+        #777 0px,
+        #777 2px,
+        transparent 2px,
+        transparent 8px
+      );
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 3px;
+    background:
+      linear-gradient(
+        to right,
+        var(--yellow) 0%,
+        var(--yellow) var(--progress),
+        transparent var(--progress)
+      ),
+      repeating-linear-gradient(
+        to right,
+        #777 0px,
+        #777 2px,
+        transparent 2px,
+        transparent 8px
+      );
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    margin-top: -4.5px;
+    background: var(--yellow);
+    border: 0;
+    border-radius: 50%;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: var(--yellow);
+    border: 0;
+    border-radius: 50%;
+  }
+
+  .timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--grey);
+    letter-spacing: 0.04em;
+  }
+
+  /* AANPASSING VOOR KLEINE SCHERMEN */
+
+  @media (max-width: 600px) {
+    .screen {
+      padding: 18px;
+    }
+
+    .info {
+      align-items: start;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .observation {
+      text-align: left;
+      max-width: 100%;
+    }
+
+    .pin {
+      top: 27%;
+    }
+  }
+
+  @media (max-height: 500px) {
+    .screen {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    footer {
+      gap: 5px;
+    }
+
+    .date {
+      font-size: 21px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="screen">
+
+  <header>
+    <span>NEVER FINISHED®</span>
+    <span class="muted">001 — THE SCREEN</span>
+  </header>
+
+  <section class="stage" id="stage"
+           aria-label="Klik op WALK om een dag te kiezen">
+
+    <svg class="word"
+         viewBox="0 0 1000 260"
+         preserveAspectRatio="xMidYMid meet"
+         xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+        <clipPath id="walk-progress"
+                  clipPathUnits="userSpaceOnUse">
+          <rect id="progressRect"
+                x="0" y="0"
+                width="0" height="260"/>
+        </clipPath>
+      </defs>
+
+      <!-- De gestippelde lettercontour -->
+      <text class="unfinished"
+            x="500"
+            y="214"
+            font-size="290"
+            text-anchor="middle"
+            textLength="975"
+            lengthAdjust="spacingAndGlyphs">WALK</text>
+
+      <!-- De afgelegde gele lettercontour -->
+      <g clip-path="url(#walk-progress)">
+        <text class="finished"
+              x="500"
+              y="214"
+              font-size="290"
+              text-anchor="middle"
+              textLength="975"
+              lengthAdjust="spacingAndGlyphs">WALK</text>
+      </g>
+
+    </svg>
+
+    <span class="pin" id="pin">⌖</span>
+
+  </section>
+
+  <footer>
+
+    <div class="info">
+      <div class="date" id="date">
+        22.10.2026
+      </div>
+
+      <div class="observation" id="observation">
+        The walk begins.
+      </div>
+    </div>
+
+    <div class="details">
+      <span id="day">DAY 001</span>
+      <span id="distance">0.0 KM</span>
+      <span id="time">00H 00M</span>
+    </div>
+
+    <input type="range"
+           id="timeline"
+           min="0"
+           max="59"
+           step="1"
+           value="0"
+           aria-label="Selecteer wandeldag">
+
+    <div class="timeline-labels">
+      <span>START — 22.10.2026</span>
+      <span>DESTINATION — UNKNOWN</span>
+    </div>
+
+  </footer>
+
+</main>
+
+<script>
+
+  /*
+    NEVER FINISHED — WALK
+
+    Alles is opgebouwd rond één getal:
+    de geselecteerde dag.
+
+    De tijdlijn en de typografie gebruiken
+    precies dezelfde voortgang.
+  */
+
+  const TOTAL_DAYS = 60;
+  const START_DATE = new Date(2026, 9, 22);
+
+  const observations = [
+    "The walk begins.",
+    "Something felt different today.",
+    "The same street. Another perspective.",
+    "A place that wasn't there before.",
+    "Nothing changed. Everything moved.",
+    "A different direction, a familiar feeling.",
+    "More distance. Less certainty.",
+    "An unexpected detail on the way.",
+    "Some things disappear slowly.",
+    "The destination is still unknown.",
+    "A familiar route became unfamiliar.",
+    "Another day. Another trace."
+  ];
+
+  /*
+    FICTIEVE DATA VOOR DE DEMO
+
+    Later kun je hier echte wandeldata
+    invullen of vanuit een apart
+    databestand inladen.
+  */
+
+  const walks = Array.from(
+    { length: TOTAL_DAYS },
+    (_, i) => {
+
+      const date = new Date(START_DATE);
+      date.setDate(date.getDate() + i);
+
+      const distance = i === 0
+        ? 0
+        : Number((3.2 + (i * 7 % 16)).toFixed(1));
+
+      const minutes = Math.round(distance * 14);
+
+      return {
+        id: i + 1,
+        date: date,
+        distance: distance,
+        minutes: minutes,
+        observation: observations[i % observations.length]
+      };
+    }
+  );
+
+  const timeline = document.getElementById("timeline");
+  const stage = document.getElementById("stage");
+  const progressRect = document.getElementById("progressRect");
+
+  const dateElement = document.getElementById("date");
+  const dayElement = document.getElementById("day");
+  const distanceElement = document.getElementById("distance");
+  const timeElement = document.getElementById("time");
+  const observationElement =
+    document.getElementById("observation");
+
+  let selectedDay = 0;
+
+  function formatDate(date) {
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const yyyy = date.getFullYear();
+
+    return `${dd}.${mm}.${yyyy}`;
+  }
+
+  function formatTime(minutes) {
+    const h = String(Math.floor(minutes / 60))
+      .padStart(2, "0");
+
+    const m = String(minutes % 60)
+      .padStart(2, "0");
+
+    return `${h}H ${m}M`;
+  }
+
+  /*
+    Update alle onderdelen tegelijk.
+  */
+
+  function setDay(index) {
+    selectedDay = Math.max(
+      0,
+      Math.min(TOTAL_DAYS - 1, index)
+    );
+
+    const walk = walks[selectedDay];
+
+    const progress =
+      selectedDay / (TOTAL_DAYS - 1) * 100;
+
+    const progressPixels = progress * 10;
+
+    // De gele lijn onthult de typografie.
+    progressRect.setAttribute(
+      "width",
+      progressPixels
+    );
+
+    // Ook de tijdlijn wordt geel.
+    document.documentElement.style.setProperty(
+      "--progress",
+      progress + "%"
+    );
+
+    timeline.value = selectedDay;
+
+    // De tekst verandert mee.
+    dateElement.textContent = formatDate(walk.date);
+
+    dayElement.textContent =
+      "DAY " + String(walk.id).padStart(3, "0");
+
+    distanceElement.textContent =
+      walk.distance.toFixed(1) + " KM";
+
+    timeElement.textContent =
+      formatTime(walk.minutes);
+
+    observationElement.textContent =
+      walk.observation;
+  }
+
+  /*
+    MET DE SLIDER NAVIGEREN
+  */
+
+  timeline.addEventListener("input", event => {
+    setDay(Number(event.target.value));
+  });
+
+  /*
+    RECHTSTREEKS OP WALK KLIKKEN
+
+    De horizontale positie bepaalt
+    welke dag geselecteerd wordt.
+  */
+
+  function chooseFromPointer(event) {
+    const rect = stage.getBoundingClientRect();
+
+    const x = (event.clientX - rect.left) / rect.width;
+
+    const index = Math.round(
+      Math.max(0, Math.min(1, x)) * (TOTAL_DAYS - 1)
+    );
+
+    setDay(index);
+  }
+
+  stage.addEventListener("pointerdown", event => {
+    stage.classList.add("pinned");
+    stage.setPointerCapture(event.pointerId);
+    chooseFromPointer(event);
+  });
+
+  stage.addEventListener("pointermove", event => {
+    if (event.buttons === 1) {
+      chooseFromPointer(event);
+    }
+  });
+
+  /*
+    START DE WEBSITE
+  */
+
+  setDay(0);
+
+</script>
+
+</body>
+</html>
