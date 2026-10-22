@@ -5,32 +5,122 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Never Finished</title>
+
   <style>
-    * { box-sizing: border-box; }
-    body {
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
       margin: 0;
-      min-height: 100vh;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 32px;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
+
+    body {
+      background: #000000;
+      color: #ffffff;
+      font-family: Futura, Arial, sans-serif;
+    }
+
+    main {
+      height: 100vh;
+      height: 100dvh;
+      padding: clamp(20px, 3vw, 45px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
     h1 {
-      font-size: clamp(42px, 9vw, 150px);
-      letter-spacing: -0.07em;
-      line-height: 0.9;
+      font-size: clamp(55px, 12vw, 220px);
+      font-weight: 900;
+      line-height: 0.85;
+      letter-spacing: -0.075em;
+      margin: 0;
     }
-    a {
-      color: #eaff00;
-      font-size: 22px;
+
+    .editions {
+      border-top: 1px solid #555;
+    }
+
+    .edition {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #555;
+      color: #ffffff;
       text-decoration: none;
+      font-size: clamp(16px, 2vw, 25px);
+      transition: color 0.2s;
     }
-    a:hover { text-decoration: underline; }
+
+    .edition:hover {
+      color: #eaff00;
+    }
+
+    .number {
+      font-size: 12px;
+      margin-right: 20px;
+      color: #888;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      color: #888;
+      font-size: 10px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 14vw;
+      }
+    }
   </style>
 </head>
+
 <body>
+
+<main>
+
+  <header>
+    <span>NEVER FINISHED®</span>
+    <span>INDEX / 2026</span>
+  </header>
+
   <h1>NEVER<br>FINISHED.</h1>
-  <p>AN ONGOING EXPERIMENT</p>
-  <a href="edities/01.html">01 — WALK ↗</a>
+
+  <section class="editions">
+
+    <!-- WALK 01 -->
+    <a class="edition" href="01.html">
+      <span>
+        <span class="number">001</span>
+        WALK
+      </span>
+      <span>↗</span>
+    </a>
+
+    <!-- Hier komen later WALK 02, 03, enz. -->
+
+  </section>
+
+  <footer>
+    <span>AN ONGOING EXPERIMENT</span>
+    <span>TO BE CONTINUED...</span>
+  </footer>
+
+</main>
+
 </body>
 </html>
