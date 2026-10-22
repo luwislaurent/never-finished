@@ -2,118 +2,300 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Never Finished</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<title>Never Finished — WALK</title>
 
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
+<style>
+  :root {
+    --black: #000000;
+    --white: #ffffff;
+    --yellow: #eaff00;
+    --grey: #777777;
+  }
 
-    body {
-      background: #000000;
-      color: #ffffff;
-      font-family: Futura, Arial, sans-serif;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    main {
-      height: 100vh;
-      height: 100dvh;
-      padding: clamp(20px, 3vw, 45px);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+  html, body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      letter-spacing: 0.05em;
-    }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: Futura, "Arial Black", Arial, sans-serif;
+  }
 
+  /* HOOFDPAGINA */
+
+  main {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: clamp(20px, 3vw, 45px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+  }
+
+  /* GROTE TITEL */
+
+  h1 {
+    font-size: clamp(55px, 12vw, 220px);
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.075em;
+    margin: clamp(60px, 10vh, 130px) 0 45px;
+  }
+
+  .description {
+    max-width: 470px;
+    font-family: Arial, sans-serif;
+    font-size: clamp(11px, 1vw, 14px);
+    line-height: 1.5;
+    color: #999999;
+    margin-bottom: 55px;
+  }
+
+  /* EDITIES */
+
+  .editions {
+    border-top: 1px solid #444444;
+    width: 100%;
+  }
+
+  .edition {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 100px 40px;
+    align-items: center;
+    gap: 20px;
+    min-height: 94px;
+    padding: 16px 0;
+    border-bottom: 1px solid #444444;
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  a.edition:hover {
+    color: var(--yellow);
+  }
+
+  .edition-name {
+    font-size: clamp(22px, 3.5vw, 48px);
+    font-weight: 900;
+    letter-spacing: -0.06em;
+  }
+
+  .preview {
+    width: 100px;
+    height: 64px;
+    background: #171717;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .type-preview {
+    font-size: 25px;
+    font-weight: 900;
+    color: var(--yellow);
+    letter-spacing: -0.08em;
+  }
+
+  .arrow {
+    font-size: 26px;
+    text-align: right;
+  }
+
+  /* TOEKOMSTIGE EDITIES */
+
+  .upcoming {
+    color: #555555;
+  }
+
+  .upcoming .preview {
+    color: #555555;
+    background: #101010;
+    font-size: 20px;
+  }
+
+  .soon {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: #777777;
+    text-align: right;
+  }
+
+  /* ONDERAAN */
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: auto;
+    padding-top: 65px;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--grey);
+  }
+
+  /* RESPONSIVE DESIGN */
+
+  @media (max-width: 600px) {
     h1 {
-      font-size: clamp(55px, 12vw, 220px);
-      font-weight: 900;
-      line-height: 0.85;
-      letter-spacing: -0.075em;
-      margin: 0;
+      font-size: 14vw;
+      margin: 75px 0 35px;
     }
 
-    .editions {
-      border-top: 1px solid #555;
+    .description {
+      margin-bottom: 40px;
     }
 
     .edition {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      border-bottom: 1px solid #555;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: clamp(16px, 2vw, 25px);
-      transition: color 0.2s;
+      grid-template-columns: minmax(0, 1fr) 65px 36px;
+      gap: 10px;
+      min-height: 76px;
+      padding: 12px 0;
     }
 
-    .edition:hover {
-      color: #eaff00;
+    .edition-name {
+      font-size: clamp(20px, 5vw, 28px);
     }
 
-    .number {
-      font-size: 12px;
-      margin-right: 20px;
-      color: #888;
+    .preview {
+      width: 65px;
+      height: 48px;
+    }
+
+    .type-preview {
+      font-size: 18px;
+    }
+
+    .arrow {
+      font-size: 20px;
+    }
+
+    .soon {
+      font-size: 8px;
     }
 
     footer {
-      display: flex;
-      justify-content: space-between;
-      color: #888;
-      font-size: 10px;
+      padding-top: 45px;
     }
-
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 14vw;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
 
 <main>
 
+  <!-- BOVENAAN -->
+
   <header>
     <span>NEVER FINISHED®</span>
     <span>INDEX / 2026</span>
   </header>
 
+  <!-- TITEL -->
+
   <h1>NEVER<br>FINISHED.</h1>
+
+  <!-- PROJECTBESCHRIJVING -->
+
+  <div class="description">
+    WALK — An ongoing archive of overlooked places,
+    forgotten objects and unnecessary observations
+    collected while walking.
+  </div>
+
+  <!-- OVERZICHT WALK EDITIES -->
 
   <section class="editions">
 
-    <!-- WALK 01 -->
-    <a class="edition" href="01.html">
-      <span>
-        <span class="number">001</span>
-        WALK
-      </span>
-      <span>↗</span>
+    <!-- WALK 4 -->
+
+    <div class="edition upcoming">
+      <div class="edition-name">
+        WALK 4
+      </div>
+
+      <div class="preview">?</div>
+
+      <span class="soon">SOON</span>
+    </div>
+
+    <!-- WALK 3 -->
+
+    <div class="edition upcoming">
+      <div class="edition-name">
+        WALK 3
+      </div>
+
+      <div class="preview">?</div>
+
+      <span class="soon">SOON</span>
+    </div>
+
+    <!-- WALK 2 -->
+
+    <a class="edition" href="02.html">
+
+      <div class="edition-name">
+        WALK 2
+      </div>
+
+      <div class="preview">
+        <img
+          src="beeld/huis-01.jpg"
+          alt="A house observed during a walk">
+      </div>
+
+      <span class="arrow">↗</span>
+
     </a>
 
-    <!-- Hier komen later WALK 02, 03, enz. -->
+    <!-- WALK 1 -->
+
+    <a class="edition" href="01.html">
+
+      <div class="edition-name">
+        WALK 1
+      </div>
+
+      <div class="preview">
+        <span class="type-preview">WALK</span>
+      </div>
+
+      <span class="arrow">↗</span>
+
+    </a>
 
   </section>
+
+  <!-- FOOTER -->
 
   <footer>
     <span>AN ONGOING EXPERIMENT</span>
