@@ -1,0 +1,590 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALK 02 — The Image</title>
+
+<style>
+:root {
+  --black: #050505;
+  --white: #f1f1ed;
+  --yellow: #eaff00;
+  --photo-color: #555555;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--black); }
+
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--white);
+  font-family: Futura, "Arial Black", Arial, sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 3vw;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: .06em;
+}
+
+header a:hover { color: var(--yellow); }
+
+.intro {
+  padding: 5vh 3vw 6vh;
+  border-bottom: 1px solid #333;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(90px, 23vw, 440px);
+  line-height: .73;
+  font-weight: 900;
+  letter-spacing: -.095em;
+  color: var(--yellow);
+}
+
+.subtitle {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 35px;
+  color: #aaa;
+  font-size: clamp(10px, 1vw, 14px);
+}
+
+.archive {
+  padding: 8vh 3vw 12vh;
+}
+
+.archive-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 22px;
+  gap: 16px;
+}
+
+.archive-heading h2 {
+  margin: 0;
+  font-size: clamp(18px, 3vw, 42px);
+  letter-spacing: -.06em;
+}
+
+.archive-heading span {
+  font-size: 11px;
+  color: #aaa;
+}
+
+/*
+  DE FOTO'S BEPALEN HET RASTER.
+
+  JavaScript telt de foto's en leest
+  hun echte breedte en hoogte.
+
+  Daaruit volgen het aantal kolommen,
+  de grootte van elke foto en de
+  dominante kleur van de pagina.
+*/
+
+.photo-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(var(--columns, 3), minmax(0, 1fr));
+  grid-auto-flow: dense;
+  grid-auto-rows: clamp(70px, 8vw, 145px);
+  gap: clamp(5px, .7vw, 12px);
+  align-items: stretch;
+}
+
+.photo-item {
+  position: relative;
+  overflow: hidden;
+  background: #181818;
+  min-height: 0;
+  cursor: pointer;
+  grid-column: span var(--span-x, 1);
+  grid-row: span var(--span-y, 3);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .65s ease, filter .65s ease;
+  filter: grayscale(35%);
+}
+
+.photo-item:hover img {
+  transform: scale(1.045);
+  filter: grayscale(0%);
+}
+
+.photo-item::after {
+  content: "";
+  position: absolute;
+  inset: 30% 0 0;
+  background: linear-gradient(
+    transparent,
+    rgba(0,0,0,.75)
+  );
+  pointer-events: none;
+}
+
+.photo-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: clamp(12px, 2vw, 28px);
+  z-index: 2;
+}
+
+.photo-number {
+  color: var(--yellow);
+  font-size: 10px;
+  letter-spacing: .1em;
+}
+
+.photo-title {
+  margin: 9px 0 6px;
+  font-size: clamp(19px, 3vw, 58px);
+  line-height: .94;
+  letter-spacing: -.055em;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.photo-note {
+  font-family: Arial, sans-serif;
+  font-size: clamp(11px, .9vw, 14px);
+  line-height: 1.35;
+  max-width: 340px;
+}
+
+.photo-missing {
+  padding: 20px;
+  color: #888;
+  font: 12px/1.5 monospace;
+  overflow-wrap: anywhere;
+}
+
+/* KLEUR VAN DE FOTO WORDT EEN ACCENT */
+
+.color-line {
+  height: 5px;
+  background: var(--photo-color);
+  transition: background 1s;
+}
+
+.end {
+  padding: 5vh 3vw;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 11px;
+  color: #999;
+}
+
+.end a:hover { color: var(--yellow); }
+
+/* FOTO VERGROTEN */
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #050505f5;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6vw;
+}
+
+.viewer.open { display: flex; }
+
+.viewer img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+}
+
+.viewer-close {
+  position: absolute;
+  right: 3vw;
+  top: 22px;
+  border: 0;
+  color: var(--yellow);
+  background: none;
+  font: bold 17px Arial, sans-serif;
+  cursor: pointer;
+}
+
+.viewer-caption {
+  position: absolute;
+  bottom: 3vh;
+  left: 6vw;
+  right: 6vw;
+  font-size: clamp(13px, 2vw, 24px);
+}
+
+/* TELEFOON: FOTOFORMAT BLIJFT BEPALEND */
+
+@media (max-width: 700px) {
+  header { padding: 20px; }
+
+  .intro { padding: 8vh 20px; }
+
+  h1 { font-size: 27vw; }
+
+  .subtitle {
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .archive { padding: 45px 12px 60px; }
+
+  .photo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: clamp(68px, 22vw, 125px);
+  }
+
+  .photo-item {
+    grid-column: span min(var(--span-x, 1), 2);
+  }
+
+  .photo-title {
+    font-size: clamp(16px, 4vw, 30px);
+  }
+
+  .photo-note { font-size: 11px; }
+
+  .end { padding: 25px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">← NEVER FINISHED®</a>
+  <span>EDITION 002 / THE IMAGE</span>
+</header>
+
+<section class="intro">
+  <h1>WALK.</h1>
+  <div class="subtitle">
+    <span>AN ARCHIVE OF THINGS NOBODY ASKED ABOUT.</span>
+    <span>NO DESTINATION. JUST OBSERVATIONS.</span>
+  </div>
+</section>
+
+<section class="archive">
+  <div class="archive-heading">
+    <h2>UNNECESSARY OBSERVATIONS.</h2>
+    <span id="count">000 OBSERVATIONS</span>
+  </div>
+
+  <div class="photo-grid" id="gallery"></div>
+</section>
+
+<div class="color-line"></div>
+
+<footer class="end">
+  <span>WALK 02 — THE IMAGE</span>
+  <a href="index.html">BACK TO INDEX ↗</a>
+</footer>
+
+<div class="viewer" id="viewer"
+     role="dialog" aria-modal="true"
+     aria-label="Photograph viewer">
+  <button class="viewer-close" id="close">CLOSE ×</button>
+  <img id="large-image" alt="">
+  <div class="viewer-caption" id="large-caption"></div>
+</div>
+
+<script>
+/*
+  HIER BEHEER JE JE FOTO'S.
+
+  Eén object = één waarneming.
+  De datum is de dag van je wandeling.
+
+  Er hoeven GEEN opeenvolgende dagen te zijn.
+
+  Vervang de voorbeeldfoto's en teksten
+  door je eigen waarnemingen.
+*/
+
+const observations = [
+  {
+    date: "22.10.2026",
+    image: "beeld/huis-01.jpg",
+    title: "THE HOUSE GAVE UP.",
+    note: "The windows are still pretending."
+  },
+  {
+    date: "22.10.2026",
+    image: "beeld/plant-01.jpg",
+    title: "THE PLANT LOOKED SAD.",
+    note: "Nobody seemed particularly concerned."
+  },
+  {
+    date: "25.10.2026",
+    image: "beeld/straat-01.jpg",
+    title: "A VERY PRIVATE DISASTER.",
+    note: "Everyone walked past it."
+  },
+  {
+    date: "29.10.2026",
+    image: "beeld/huis-02.jpg",
+    title: "NOBODY LIVES HERE.",
+    note: "But someone still cuts the grass."
+  },
+  {
+    date: "02.11.2026",
+    image: "beeld/detail-01.jpg",
+    title: "STILL WAITING.",
+    note: "For what, exactly?"
+  }
+];
+
+/*
+  DE VISUELE REGEL
+
+  1. Aantal foto's bepaalt kolommen.
+  2. Liggende foto's krijgen meer breedte.
+  3. Staande foto's krijgen meer hoogte.
+  4. Kleur uit de eerste beschikbare foto
+     beïnvloedt de gekleurde lijn.
+  5. Met andere foto's verandert de pagina.
+*/
+
+const gallery = document.getElementById("gallery");
+const count = document.getElementById("count");
+const viewer = document.getElementById("viewer");
+const largeImage = document.getElementById("large-image");
+const largeCaption = document.getElementById("large-caption");
+
+const photoData = observations.map((item, i) => ({
+  ...item,
+  number: i + 1,
+  ratio: 1,
+  loaded: false
+}));
+
+function loadPhoto(item) {
+  return new Promise(resolve => {
+    const img = new Image();
+
+    img.onload = () => {
+      item.ratio = img.naturalWidth / img.naturalHeight;
+      item.loaded = true;
+      resolve();
+    };
+
+    img.onerror = () => {
+      item.loaded = false;
+      resolve();
+    };
+
+    img.src = item.image;
+  });
+}
+
+function getColumns(items) {
+  const n = items.length;
+  const portraits = items.filter(p => p.ratio < .85).length;
+  const wides = items.filter(p => p.ratio > 1.25).length;
+
+  if (n <= 1) return 1;
+  if (n === 2) return 2;
+  if (n <= 4) return 3;
+
+  // Meer staande beelden = compactere compositie.
+  if (portraits > wides) return 3;
+
+  // Meer liggende beelden = breder grid.
+  if (wides > portraits) return 4;
+
+  return n >= 8 ? 4 : 3;
+}
+
+function getSpans(item, columns) {
+  if (columns === 1) return [1, 4];
+
+  if (item.ratio >= 1.4) {
+    return [Math.min(2, columns), 3];
+  }
+
+  if (item.ratio <= .8) {
+    return [1, 5];
+  }
+
+  return [1, 3];
+}
+
+function renderGallery() {
+  gallery.innerHTML = "";
+
+  const columns = getColumns(photoData);
+  gallery.style.setProperty("--columns", columns);
+
+  count.textContent =
+    String(photoData.length).padStart(3, "0") +
+    " OBSERVATIONS";
+
+  photoData.forEach(item => {
+    const [spanX, spanY] = getSpans(item, columns);
+
+    const card = document.createElement("article");
+    card.className = "photo-item";
+    card.style.setProperty("--span-x", spanX);
+    card.style.setProperty("--span-y", spanY);
+
+    if (item.loaded) {
+      const img = document.createElement("img");
+      img.src = item.image;
+      img.alt = item.title + " " + item.note;
+      img.loading = "lazy";
+      card.appendChild(img);
+    } else {
+      const missing = document.createElement("div");
+      missing.className = "photo-missing";
+      missing.textContent =
+        "ADD YOUR PHOTO: " + item.image;
+      card.appendChild(missing);
+    }
+
+    const text = document.createElement("div");
+    text.className = "photo-text";
+
+    const number = document.createElement("div");
+    number.className = "photo-number";
+    number.textContent =
+      String(item.number).padStart(3, "0") +
+      " / " + item.date;
+
+    const title = document.createElement("h3");
+    title.className = "photo-title";
+    title.textContent = item.title;
+
+    const note = document.createElement("div");
+    note.className = "photo-note";
+    note.textContent = item.note;
+
+    text.append(number, title, note);
+    card.appendChild(text);
+
+    if (item.loaded) {
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "View " + item.title);
+
+      function openPhoto() {
+        largeImage.src = item.image;
+        largeImage.alt = item.title;
+        largeCaption.textContent =
+          item.date + " — " + item.title + " " + item.note;
+        viewer.classList.add("open");
+      }
+
+      card.addEventListener("click", openPhoto);
+      card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openPhoto();
+        }
+      });
+    }
+
+    gallery.appendChild(card);
+  });
+}
+
+/*
+  KLEUR UIT EEN ECHTE FOTO LEZEN.
+  Dit werkt met foto's uit je eigen
+  GitHub-repository.
+*/
+
+function setPhotoColor() {
+  const first = photoData.find(item => item.loaded);
+  if (!first) return;
+
+  const image = new Image();
+
+  image.onload = () => {
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 16;
+      canvas.height = 16;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(image, 0, 0, 16, 16);
+
+      const pixels = ctx.getImageData(0, 0, 16, 16).data;
+      let r = 0, g = 0, b = 0;
+      const total = pixels.length / 4;
+
+      for (let i = 0; i < pixels.length; i += 4) {
+        r += pixels[i];
+        g += pixels[i + 1];
+        b += pixels[i + 2];
+      }
+
+      const color = `rgb(${Math.round(r / total)},
+                         ${Math.round(g / total)},
+                         ${Math.round(b / total)})`;
+
+      document.documentElement.style.setProperty(
+        "--photo-color", color
+      );
+    } catch (error) {
+      console.log("Photo color unavailable", error);
+    }
+  };
+
+  image.src = first.image;
+}
+
+function closeViewer() {
+  viewer.classList.remove("open");
+  largeImage.removeAttribute("src");
+}
+
+document.getElementById("close")
+  .addEventListener("click", closeViewer);
+
+viewer.addEventListener("click", event => {
+  if (event.target === viewer) closeViewer();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeViewer();
+});
+
+Promise.all(photoData.map(loadPhoto)).then(() => {
+  renderGallery();
+  setPhotoColor();
+});
+</script>
+
+</body>
+</html>
