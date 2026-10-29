@@ -4,15 +4,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WALK 2 — Observation Archive</title>
+
+<title>WALK 2 — Archive</title>
 
 <style>
 :root {
-  --wall: #f5f4ef;
-  --ink: #171717;
-  --muted: #85847f;
-  --accent: #eaff00;
-  --image-tone: #d9d8d2;
+  --wall: #f7f6f2;
+  --ink: #191919;
+  --muted: #888680;
+  --gap: 28px;
 }
 
 * {
@@ -30,22 +30,25 @@ body {
   font-family: Futura, Helvetica, Arial, sans-serif;
 }
 
-/* BIJNA ONZICHTBARE NAVIGATIE */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* MINIMALE NAVIGATIE */
 
 header {
-  padding: 25px clamp(20px, 4vw, 70px);
+  padding: 25px clamp(20px, 4vw, 65px);
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  align-items: center;
+  gap: 15px;
+  font-size: 11px;
 }
 
 header a {
-  color: var(--ink);
+  color: inherit;
   text-decoration: none;
-  font-size: 12px;
   font-weight: 700;
-  letter-spacing: -.02em;
 }
 
 header a:hover {
@@ -58,109 +61,92 @@ header span {
   letter-spacing: .08em;
 }
 
-/* DE WITTE GALERIJMUUR */
+/* DE GALERIJ */
 
 .gallery {
-  padding: clamp(65px, 12vh, 180px)
-           clamp(22px, 6vw, 110px)
-           15vh;
   min-height: 85vh;
+  padding:
+    clamp(60px, 10vh, 130px)
+    clamp(24px, 6vw, 110px)
+    12vh;
 }
 
-/*
-  DE FOTO'S BEPALEN DE LAYOUT
+.wall {
+  display: flex;
+  flex-direction: column;
 
-  JavaScript berekent de grootte van
-  elk beeld aan de hand van:
-  - de hoeveelheid foto's
-  - staand / liggend / vierkant
-  - de echte beeldverhouding
+  /* ALLE RIJEN KRIJGEN DEZELFDE AFSTAND */
+  gap: var(--gap);
+}
 
-  De pagina is dus geen vast sjabloon.
-*/
+/* ELKE RIJ IS EEN GECUREERDE COMPOSITIE */
 
-.gallery-wall {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: 10px;
-  grid-auto-flow: row dense;
-  column-gap: clamp(8px, 1.8vw, 26px);
-  row-gap: 10px;
-  align-items: start;
+.gallery-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  /* ALLE FOTO'S DEZELFDE AFSTAND */
+  gap: var(--gap);
 }
 
 .artwork {
+  display: block;
+  flex: 0 0 auto;
+  min-width: 0;
   border: 0;
-  background: transparent;
   padding: 0;
   margin: 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  cursor: pointer;
+  background: transparent;
   color: inherit;
+  cursor: pointer;
   text-align: left;
-  grid-column: span var(--span, 4);
-  grid-row: span var(--rows, 20);
 }
 
-.artwork-image {
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #e5e4df;
-  overflow: hidden;
-  transition: transform .4s ease;
-}
-
-.artwork-image img {
+.artwork img {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
+  transition: opacity .2s ease;
 }
 
-.artwork:hover .artwork-image {
-  transform: translateY(-5px);
+.artwork:hover img {
+  opacity: .82;
 }
+
+/* MUSEUMNUMMER ONDER DE FOTO */
 
 .artwork-number {
-  flex-shrink: 0;
-  padding-top: 9px;
-  height: 25px;
+  display: block;
+  height: 22px;
+  padding-top: 8px;
+  color: var(--muted);
   font-size: 10px;
-  font-weight: 500;
-  color: #797974;
-  letter-spacing: .04em;
+  letter-spacing: .06em;
 }
 
-/* ALS EEN FOTO NOG NIET BESTAAT */
+/* ONTBREKENDE FOTO */
 
 .missing {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 15px;
-  text-align: center;
-  color: var(--muted);
+  width: 100%;
+  padding: 20px;
+  background: #e5e4df;
+  color: #777;
   font: 11px/1.5 Arial, sans-serif;
   overflow-wrap: anywhere;
 }
 
-/* KLEINE MUSEUMVOETTEKST */
+/* FOOTER */
 
 footer {
+  padding: 25px clamp(20px, 4vw, 65px);
   display: flex;
   justify-content: space-between;
   gap: 15px;
-  padding: 25px clamp(20px, 4vw, 70px);
-  font-size: 10px;
   color: var(--muted);
+  font-size: 10px;
   letter-spacing: .05em;
 }
 
@@ -169,109 +155,115 @@ footer a {
   text-decoration: none;
 }
 
-footer a:hover {
-  color: var(--ink);
-}
-
-/* EEN FOTO ALS KUNSTWERK OPENEN */
+/* FOTO OPENEN */
 
 .viewer {
-  display: none;
   position: fixed;
   inset: 0;
   z-index: 100;
+  display: none;
   background: var(--wall);
-  padding: clamp(20px, 4vw, 65px);
-  flex-direction: column;
+  padding: 50px 20px 30px;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
 }
 
 .viewer.open {
   display: flex;
 }
 
-.close {
+.viewer-close {
   position: absolute;
-  top: 22px;
+  top: 25px;
   right: clamp(20px, 4vw, 65px);
-  border: 0;
+  border: none;
   background: transparent;
   font: 12px Futura, Arial, sans-serif;
+  color: var(--ink);
   cursor: pointer;
+}
+
+/*
+  DE FOTO EN TEKST HOREN BIJ ELKAAR.
+
+  De tekst krijgt exact de breedte van
+  de weergegeven afbeelding.
+*/
+
+.viewer-work {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .viewer-image {
   display: block;
-  max-width: 85%;
-  max-height: 65vh;
   width: auto;
   height: auto;
+  max-width: 88vw;
+  max-height: 65vh;
   object-fit: contain;
 }
 
 .viewer-info {
-  max-width: 500px;
-  width: 85%;
+  width: 100%;
   margin-top: 22px;
   text-align: left;
 }
 
-.viewer-number {
-  font-size: 10px;
+.viewer-date {
   color: var(--muted);
+  font-size: 10px;
   letter-spacing: .07em;
 }
 
 .viewer-title {
-  margin: 16px 0 8px;
-  font-size: clamp(20px, 3vw, 38px);
-  letter-spacing: -.06em;
+  margin: 15px 0 8px;
+  font-size: clamp(21px, 3vw, 40px);
   line-height: 1;
   font-weight: 900;
+  letter-spacing: -.055em;
 }
 
 .viewer-note {
   margin: 0;
   font: 13px/1.5 Arial, sans-serif;
-  color: #686762;
+  color: #777;
 }
 
-/* TELEFOON: ANDERE SCHALING, ZELFDE REGEL */
+/* MOBIEL */
 
-@media (max-width: 700px) {
+@media(max-width: 700px) {
+  :root {
+    --gap: 16px;
+  }
+
   header {
-    padding: 22px 20px;
+    padding: 20px;
   }
 
   .gallery {
-    padding: 60px 18px 100px;
+    padding: 55px 18px 90px;
   }
 
-  .gallery-wall {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    column-gap: 12px;
-  }
-
-  .artwork {
-    grid-column: span var(--mobile-span, 3);
-  }
-
-  .artwork-number {
-    font-size: 9px;
+  .gallery-row {
+    flex-wrap: nowrap;
   }
 
   .viewer-image {
     max-width: 100%;
-    max-height: 60vh;
+    max-height: 55vh;
   }
 
-  .viewer-info {
-    width: 100%;
+  .viewer-title {
+    font-size: clamp(20px, 6vw, 30px);
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media(prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
   }
@@ -287,31 +279,38 @@ footer a:hover {
 </header>
 
 <main class="gallery">
-  <div class="gallery-wall" id="gallery"></div>
+  <div class="wall" id="wall"></div>
 </main>
 
 <footer>
-  <span id="count">WALK / OBSERVATIONS</span>
+  <span id="counter">WALK / OBSERVATIONS</span>
   <a href="index.html">NEVER FINISHED ↗</a>
 </footer>
 
-<!-- UITVERGROTE FOTO -->
+<!-- GROTE FOTO MET UITGELIJNDE TEKST -->
 
-<div class="viewer" id="viewer"
+<div class="viewer"
+     id="viewer"
      role="dialog"
      aria-modal="true"
      aria-label="Observation detail">
 
-  <button class="close" id="close">
+  <button class="viewer-close" id="close">
     CLOSE ×
   </button>
 
-  <img class="viewer-image" id="largeImage" alt="">
+  <div class="viewer-work" id="viewerWork">
 
-  <div class="viewer-info">
-    <div class="viewer-number" id="viewerNumber"></div>
-    <h2 class="viewer-title" id="viewerTitle"></h2>
-    <p class="viewer-note" id="viewerNote"></p>
+    <img class="viewer-image"
+         id="largeImage"
+         alt="">
+
+    <div class="viewer-info" id="viewerInfo">
+      <div class="viewer-date" id="viewerDate"></div>
+      <h2 class="viewer-title" id="viewerTitle"></h2>
+      <p class="viewer-note" id="viewerNote"></p>
+    </div>
+
   </div>
 
 </div>
@@ -319,14 +318,9 @@ footer a:hover {
 <script>
 
 /*
-  JOUW ARCHIEF
+  JOUW FOTOARCHIEF
 
-  Elke foto = één ontdekking.
-  Je hoeft niet elke dag te wandelen.
-
-  Om iets toe te voegen:
-  1. Upload je foto in de map "beeld".
-  2. Voeg hieronder een observatie toe.
+  De foto's blijven in je map "beeld".
 */
 
 const observations = [
@@ -362,228 +356,265 @@ const observations = [
   }
 ];
 
-const gallery = document.getElementById("gallery");
+const wall = document.getElementById("wall");
 const viewer = document.getElementById("viewer");
 const largeImage = document.getElementById("largeImage");
-const viewerNumber = document.getElementById("viewerNumber");
-const viewerTitle = document.getElementById("viewerTitle");
-const viewerNote = document.getElementById("viewerNote");
+const viewerWork = document.getElementById("viewerWork");
+const viewerInfo = document.getElementById("viewerInfo");
 
-let lastFocused = null;
+let photoData = [];
+let lastFocus = null;
 
-function labelNumber(index) {
-  return String(index + 1).padStart(3, "0");
-}
-
-/*
-  BEELDINFORMATIE OPHALEN
-
-  De werkelijke afmetingen bepalen
-  hoeveel ruimte iedere foto krijgt.
-*/
+/* LEES DE ECHTE FOTOAFMETINGEN */
 
 function loadImage(item) {
   return new Promise(resolve => {
-    const image = new Image();
+    const img = new Image();
 
-    image.onload = () => {
-      resolve({
-        ...item,
-        ratio: image.naturalWidth / image.naturalHeight,
-        loaded: true
-      });
-    };
+    img.onload = () => resolve({
+      ...item,
+      ratio: img.naturalWidth / img.naturalHeight,
+      loaded: true
+    });
 
-    image.onerror = () => {
-      resolve({
-        ...item,
-        ratio: 1,
-        loaded: false
-      });
-    };
+    img.onerror = () => resolve({
+      ...item,
+      ratio: 1,
+      loaded: false
+    });
 
-    image.src = item.image;
+    img.src = item.image;
   });
 }
 
 /*
-  BEPAAL DE GROOTTE OP DE MUUR.
+  FOTO'S WORDEN IN RIJEN VERDEELD.
 
-  Bij veel foto's worden de werken
-  iets compacter. Staande foto's
-  krijgen een andere breedte dan
-  liggende foto's.
+  Een rij bevat een hoeveelheid beelden
+  afhankelijk van hun verhoudingen.
+
+  Hierdoor reageren de rijen op
+  staande en liggende foto's.
 */
 
-function getSpan(item, count, mobile) {
-  const ratio = item.ratio;
-  let span;
+function arrangeRows(items) {
+  const rows = [];
+  let row = [];
+  let ratioSum = 0;
 
-  if (mobile) {
-    span = ratio > 1.3 ? 5 :
-           ratio < 0.85 ? 3 : 4;
-    return Math.min(6, span);
+  const mobile = window.innerWidth <= 700;
+  const targetRatio = mobile ? 1.7 : 3.2;
+
+  items.forEach(item => {
+    const ratio = Math.max(.5, Math.min(item.ratio, 3));
+
+    if (
+      row.length > 0 &&
+      ratioSum + ratio > targetRatio
+    ) {
+      rows.push(row);
+      row = [];
+      ratioSum = 0;
+    }
+
+    row.push(item);
+    ratioSum += ratio;
+  });
+
+  if (row.length > 0) {
+    rows.push(row);
   }
 
-  if (ratio > 1.5) span = 6;
-  else if (ratio > 1.15) span = 5;
-  else if (ratio < 0.75) span = 3;
-  else span = 4;
-
-  if (count <= 2) span = Math.min(8, span + 2);
-  if (count >= 10) span = Math.max(3, span - 1);
-
-  return span;
+  return rows;
 }
 
 /*
-  GEEF ELK KUNSTWERK ZIJN EIGEN PLEK.
-  De hoogtes volgen de fotoverhouding.
+  OPEN EEN FOTO EN ZORG DAT DE TEKST
+  PRECIES LINKS MET DE FOTO UITLIJNT.
 */
 
-function sizeArtwork(card, item, count) {
-  const mobile = window.innerWidth <= 700;
-  const span = getSpan(item, count, mobile);
+function alignViewerText() {
+  if (!viewer.classList.contains("open")) return;
 
-  card.style.setProperty(
-    mobile ? "--mobile-span" : "--span",
-    span
-  );
+  const imageWidth = largeImage.getBoundingClientRect().width;
 
-  const wall = gallery;
-  const style = getComputedStyle(wall);
-  const columns = mobile ? 6 : 12;
-  const gap = parseFloat(style.columnGap) || 12;
-  const width = wall.clientWidth;
-
-  const cellWidth =
-    (width - (columns - 1) * gap) / columns;
-
-  const artworkWidth =
-    cellWidth * span + gap * (span - 1);
-
-  const photoHeight = Math.min(
-    artworkWidth / item.ratio,
-    window.innerHeight * 0.72
-  );
-
-  const totalHeight = photoHeight + 25;
-  const rows = Math.ceil((totalHeight + 10) / 20);
-
-  card.style.setProperty("--rows", rows);
+  if (imageWidth > 0) {
+    viewerInfo.style.width = imageWidth + "px";
+  }
 }
 
-/* OPEN EEN FOTO */
-
 function openViewer(item, index) {
-  lastFocused = document.activeElement;
+  lastFocus = document.activeElement;
 
+  viewerInfo.style.width = "";
   largeImage.src = item.image;
   largeImage.alt = item.title;
 
-  viewerNumber.textContent =
-    labelNumber(index) + " / " + item.date;
+  document.getElementById("viewerDate").textContent =
+    String(index + 1).padStart(3, "0") +
+    " / " + item.date;
 
-  viewerTitle.textContent = item.title;
-  viewerNote.textContent = item.note;
+  document.getElementById("viewerTitle").textContent =
+    item.title;
+
+  document.getElementById("viewerNote").textContent =
+    item.note;
 
   viewer.classList.add("open");
   document.body.style.overflow = "hidden";
 
+  if (largeImage.complete) {
+    alignViewerText();
+  }
+
   document.getElementById("close").focus();
 }
+
+largeImage.addEventListener("load", alignViewerText);
 
 function closeViewer() {
   viewer.classList.remove("open");
   document.body.style.overflow = "";
   largeImage.removeAttribute("src");
 
-  if (lastFocused) lastFocused.focus();
+  if (lastFocus) {
+    lastFocus.focus();
+  }
 }
 
 document.getElementById("close")
   .addEventListener("click", closeViewer);
 
 viewer.addEventListener("click", event => {
-  if (event.target === viewer) closeViewer();
+  if (event.target === viewer) {
+    closeViewer();
+  }
 });
 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") closeViewer();
 });
 
-/* BOUW DE GALERIJ */
+/*
+  BOUW EEN GALERIJ MET EXACTE TUSSENRUIMTES.
 
-let artworks = [];
+  Iedere rij krijgt:
+  - dezelfde horizontale gap
+  - dezelfde verticale gap
+  - de nummers onder de foto
+  - geen overlap met een volgende rij
+*/
 
-async function buildGallery() {
-  const data = await Promise.all(
-    observations.map(loadImage)
-  );
+function renderGallery() {
+  wall.innerHTML = "";
 
-  gallery.innerHTML = "";
-  artworks = [];
+  const rows = arrangeRows(photoData);
+  const mobile = window.innerWidth <= 700;
+  const gap = mobile ? 16 : 28;
 
-  data.forEach((item, index) => {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "artwork";
+  const availableWidth = wall.clientWidth;
+  const maxHeight = mobile ? 300 : 420;
 
-    const imageArea = document.createElement("div");
-    imageArea.className = "artwork-image";
+  rows.forEach(rowItems => {
+    const row = document.createElement("div");
+    row.className = "gallery-row";
 
-    if (item.loaded) {
-      const img = document.createElement("img");
-      img.src = item.image;
-      img.alt = item.title;
-      imageArea.appendChild(img);
-    } else {
-      const missing = document.createElement("div");
-      missing.className = "missing";
-      missing.textContent = "MISSING: " + item.image;
-      imageArea.appendChild(missing);
-    }
+    const ratioSum = rowItems.reduce(
+      (sum, item) => sum + item.ratio,
+      0
+    );
 
-    const number = document.createElement("div");
-    number.className = "artwork-number";
-    number.textContent = labelNumber(index);
+    const usableWidth = Math.max(
+      100,
+      availableWidth - (rowItems.length - 1) * gap
+    );
 
-    card.append(imageArea, number);
+    // De foto's worden als een echte groep verdeeld.
+    const imageHeight = Math.min(
+      usableWidth / ratioSum,
+      maxHeight
+    );
 
-    if (item.loaded) {
-      card.setAttribute(
-        "aria-label",
-        "View observation " + labelNumber(index)
-      );
+    rowItems.forEach(item => {
+      const index = photoData.indexOf(item);
 
-      card.addEventListener("click", () => {
-        openViewer(item, index);
-      });
-    } else {
-      card.disabled = true;
-    }
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "artwork";
 
-    gallery.appendChild(card);
-    artworks.push({ card, item });
+      const width = imageHeight * item.ratio;
+
+      card.style.width = width + "px";
+
+      if (item.loaded) {
+        const img = document.createElement("img");
+        img.src = item.image;
+        img.alt = item.title;
+
+        img.style.width = width + "px";
+        img.style.height = imageHeight + "px";
+        img.style.objectFit = "contain";
+
+        card.appendChild(img);
+      } else {
+        const missing = document.createElement("div");
+        missing.className = "missing";
+        missing.textContent = "MISSING: " + item.image;
+        missing.style.height = imageHeight + "px";
+        card.appendChild(missing);
+        card.disabled = true;
+      }
+
+      const label = document.createElement("span");
+      label.className = "artwork-number";
+      label.textContent =
+        String(index + 1).padStart(3, "0");
+
+      card.appendChild(label);
+
+      if (item.loaded) {
+        card.setAttribute(
+          "aria-label",
+          "View " + item.title
+        );
+
+        card.addEventListener("click", () => {
+          openViewer(item, index);
+        });
+      }
+
+      row.appendChild(card);
+    });
+
+    wall.appendChild(row);
   });
 
-  resizeGallery();
-
-  document.getElementById("count").textContent =
+  document.getElementById("counter").textContent =
     "WALK / " +
-    String(data.length).padStart(3, "0") +
+    String(photoData.length).padStart(3, "0") +
     " OBSERVATIONS";
 }
 
-function resizeGallery() {
-  artworks.forEach(({card, item}) => {
-    sizeArtwork(card, item, artworks.length);
-  });
+async function init() {
+  photoData = await Promise.all(
+    observations.map(loadImage)
+  );
+
+  renderGallery();
 }
 
-window.addEventListener("resize", resizeGallery);
+let resizeTimer;
 
-buildGallery();
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+
+  resizeTimer = setTimeout(() => {
+    renderGallery();
+    alignViewerText();
+  }, 100);
+});
+
+init();
 
 </script>
 
