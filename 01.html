@@ -1,290 +1,215 @@
 
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WALK — NEVER FINISHED</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALK 1 — Never Finished</title>
 
 <style>
-  :root {
-    --black: #000;
-    --white: #f5f5f5;
-    --yellow: #eaff00;
-    --grey: #777;
-    --progress: 0%;
+:root {
+  --black: #000;
+  --white: #f2f2f2;
+  --yellow: #eaff00;
+  --progress: 0%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--black);
+}
+
+body {
+  font-family: Futura, "Arial Black", Arial, sans-serif;
+  color: var(--white);
+}
+
+/* PRECIES EEN SCHERM */
+
+.screen {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--black);
+}
+
+/* WALK NEEMT ALLE BESCHIKBARE RUIMTE IN */
+
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.typography {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/*
+  DIT IS GEEN HORIZONTALE REVEAL.
+
+  De route volgt de vormen van de letters.
+  De gele lijn wordt letterlijk over
+  datzelfde pad getekend.
+*/
+
+.letter-route {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* HET NOG NIET AFGELEGDE TRAJECT */
+
+.unfinished {
+  stroke: var(--white);
+  stroke-width: 13;
+  stroke-dasharray: 1 25;
+  opacity: .8;
+}
+
+/* HET AFGELEGDE TRAJECT */
+
+.finished {
+  stroke: var(--yellow);
+  stroke-width: 15;
+  stroke-dasharray: 0 100000;
+  filter: none;
+}
+
+/* GELE LOCATIEPIN */
+
+.route-pin {
+  pointer-events: none;
+}
+
+.pin-ring {
+  fill: var(--black);
+  stroke: var(--yellow);
+  stroke-width: 5;
+}
+
+.pin-center {
+  fill: var(--yellow);
+}
+
+/* SLIDER: ONGEVEER 1 CM */
+
+.timeline-area {
+  height: 38px;
+  flex: 0 0 38px;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  background: var(--black);
+}
+
+.timeline {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 30px;
+  margin: 0;
+  outline: none;
+  background: transparent;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.timeline::-webkit-slider-runnable-track {
+  height: 3px;
+  background:
+    linear-gradient(
+      to right,
+      var(--yellow) 0%,
+      var(--yellow) var(--progress),
+      transparent var(--progress)
+    ),
+    repeating-linear-gradient(
+      to right,
+      #777 0px,
+      #777 2px,
+      transparent 2px,
+      transparent 9px
+    );
+}
+
+.timeline::-moz-range-track {
+  height: 3px;
+  background:
+    linear-gradient(
+      to right,
+      var(--yellow) 0%,
+      var(--yellow) var(--progress),
+      transparent var(--progress)
+    ),
+    repeating-linear-gradient(
+      to right,
+      #777 0px,
+      #777 2px,
+      transparent 2px,
+      transparent 9px
+    );
+}
+
+.timeline::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--yellow);
+}
+
+.timeline::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--yellow);
+}
+
+/* GEEN SCROLLEN OP TELEFOON */
+
+@media(max-width: 600px) {
+  .timeline-area {
+    padding: 0 12px;
   }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-    background: var(--black);
-    color: var(--white);
-  }
-
-  body {
-    font-family: Futura, "Arial Black", Arial, sans-serif;
-    cursor: crosshair;
-  }
-
-  /* ALLES BLIJFT BINNEN EEN SCHERM */
-
-  .screen {
-    width: 100%;
-    height: 100vh;
-    height: 100dvh;
-    padding: clamp(16px, 2.5vw, 36px);
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    overflow: hidden;
-  }
-
-  /* KLEINE BOVENTEKST */
-
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    gap: 10px;
-    font-size: clamp(9px, 0.8vw, 12px);
-    font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-
-  .muted {
-    color: var(--grey);
-  }
-
-  /* DE TYPOGRAFIE IS DE ROUTE */
-
-  .stage {
-    min-height: 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    cursor: crosshair;
-    touch-action: pan-y;
-  }
-
-  .word {
-    display: block;
-    width: 100%;
-    max-height: 100%;
-    overflow: visible;
-    user-select: none;
-  }
-
-  .word text {
-    font-family: Futura, "Arial Black", Arial, sans-serif;
-    font-weight: 900;
-    paint-order: stroke;
-    fill: none;
-    user-select: none;
-  }
-
-  /* NOG NIET GEWANDELD: STIPPELLIJN */
 
   .unfinished {
-    stroke: var(--white);
-    stroke-width: 2.7;
-    stroke-dasharray: 0.5 7;
-    stroke-linecap: round;
-    opacity: 0.75;
+    stroke-width: 16;
   }
-
-  /* AFGEWANDELD: VOLLE GELE LIJN */
 
   .finished {
-    stroke: var(--yellow);
-    stroke-width: 3.5;
-    stroke-linejoin: round;
-    stroke-linecap: round;
+    stroke-width: 18;
   }
+}
 
-  /* DE PIN BESTAAT OOK UIT TEKST */
-
-  .pin {
-    position: absolute;
-    top: 17%;
-    left: var(--progress);
-    transform: translateX(-50%);
-    pointer-events: none;
-    color: var(--yellow);
-    font-family: Arial, sans-serif;
-    font-size: clamp(16px, 2vw, 27px);
-    line-height: 1;
-    transition: left 0.12s linear;
-    opacity: 0;
+@media(prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
   }
-
-  .stage:hover .pin,
-  .stage:focus-within .pin,
-  .stage.pinned .pin {
-    opacity: 1;
-  }
-
-  /* INFORMATIE ONDERAAN */
-
-  footer {
-    display: grid;
-    gap: clamp(10px, 2vh, 22px);
-    padding-bottom: 2px;
-  }
-
-  .info {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .date {
-    font-size: clamp(22px, 3.5vw, 52px);
-    font-weight: 900;
-    letter-spacing: -0.06em;
-    line-height: 1;
-    white-space: nowrap;
-  }
-
-  .observation {
-    max-width: 310px;
-    text-align: right;
-    font-size: clamp(10px, 0.9vw, 13px);
-    line-height: 1.4;
-    color: #b0b0b0;
-  }
-
-  .details {
-    display: flex;
-    justify-content: space-between;
-    font-size: clamp(9px, 0.75vw, 12px);
-    font-weight: 700;
-    letter-spacing: 0.03em;
-  }
-
-  /* TIJDLIJN */
-
-  input[type="range"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 100%;
-    height: 22px;
-    margin: 0;
-    cursor: ew-resize;
-    background: transparent;
-    touch-action: none;
-  }
-
-  input[type="range"]::-webkit-slider-runnable-track {
-    height: 3px;
-    background:
-      linear-gradient(
-        to right,
-        var(--yellow) 0%,
-        var(--yellow) var(--progress),
-        transparent var(--progress),
-        transparent 100%
-      ),
-      repeating-linear-gradient(
-        to right,
-        #777 0px,
-        #777 2px,
-        transparent 2px,
-        transparent 8px
-      );
-  }
-
-  input[type="range"]::-moz-range-track {
-    height: 3px;
-    background:
-      linear-gradient(
-        to right,
-        var(--yellow) 0%,
-        var(--yellow) var(--progress),
-        transparent var(--progress)
-      ),
-      repeating-linear-gradient(
-        to right,
-        #777 0px,
-        #777 2px,
-        transparent 2px,
-        transparent 8px
-      );
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 12px;
-    height: 12px;
-    margin-top: -4.5px;
-    background: var(--yellow);
-    border: 0;
-    border-radius: 50%;
-  }
-
-  input[type="range"]::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    background: var(--yellow);
-    border: 0;
-    border-radius: 50%;
-  }
-
-  .timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    font-weight: bold;
-    color: var(--grey);
-    letter-spacing: 0.04em;
-  }
-
-  /* AANPASSING VOOR KLEINE SCHERMEN */
-
-  @media (max-width: 600px) {
-    .screen {
-      padding: 18px;
-    }
-
-    .info {
-      align-items: start;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .observation {
-      text-align: left;
-      max-width: 100%;
-    }
-
-    .pin {
-      top: 27%;
-    }
-  }
-
-  @media (max-height: 500px) {
-    .screen {
-      padding-top: 10px;
-      padding-bottom: 10px;
-    }
-
-    footer {
-      gap: 5px;
-    }
-
-    .date {
-      font-size: 21px;
-    }
-  }
+}
 </style>
 </head>
 
@@ -292,272 +217,256 @@
 
 <main class="screen">
 
-  <header>
-    <span>NEVER FINISHED®</span>
-    <span class="muted">001 — THE SCREEN</span>
-  </header>
-
   <section class="stage" id="stage"
-           aria-label="Klik op WALK om een dag te kiezen">
+           aria-label="Interactive WALK typography">
 
-    <svg class="word"
-         viewBox="0 0 1000 260"
-         preserveAspectRatio="xMidYMid meet"
-         xmlns="http://www.w3.org/2000/svg">
+    <svg
+      class="typography"
+      id="svg"
+      viewBox="0 0 1000 500"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg">
+
+      <!--
+        EEN ENKELE DOORLOPENDE ROUTE.
+
+        BEGIN: linksonder in de W.
+
+        De lijn volgt de geometrische
+        lettervormen W A L K.
+
+        Daarna loopt het traject terug
+        door andere delen van de letters
+        en eindigt linksboven bij de W.
+
+        Er is geen horizontale
+        clipping of reveal.
+      -->
 
       <defs>
-        <clipPath id="walk-progress"
-                  clipPathUnits="userSpaceOnUse">
-          <rect id="progressRect"
-                x="0" y="0"
-                width="0" height="260"/>
-        </clipPath>
+        <path id="walkRoute" d="
+          M 34 463
+
+          L 84 39
+          L 158 344
+          L 224 39
+          L 275 463
+
+          L 309 463
+          L 383 39
+          L 457 463
+          L 429 278
+          L 343 278
+          L 429 278
+          L 457 463
+
+          L 500 463
+          L 500 39
+          L 500 463
+          L 671 463
+
+          L 708 463
+          L 708 39
+          L 708 258
+          L 958 39
+          L 708 258
+          L 958 463
+
+          L 922 463
+          L 748 288
+          L 748 67
+          L 748 288
+          L 920 67
+
+          L 663 67
+          L 540 67
+          L 540 426
+          L 644 426
+          L 540 426
+          L 540 67
+
+          L 480 67
+          L 385 79
+          L 331 421
+          L 385 79
+          L 436 421
+          L 385 79
+
+          L 249 68
+          L 199 333
+          L 158 93
+          L 98 435
+          L 56 39
+        "/>
       </defs>
 
-      <!-- De gestippelde lettercontour -->
-      <text class="unfinished"
-            x="500"
-            y="214"
-            font-size="290"
-            text-anchor="middle"
-            textLength="975"
-            lengthAdjust="spacingAndGlyphs">WALK</text>
+      <!-- VOLLEDIGE ROUTE IN WITTE STIPPEN -->
+      <use
+        href="#walkRoute"
+        class="letter-route unfinished"/>
 
-      <!-- De afgelegde gele lettercontour -->
-      <g clip-path="url(#walk-progress)">
-        <text class="finished"
-              x="500"
-              y="214"
-              font-size="290"
-              text-anchor="middle"
-              textLength="975"
-              lengthAdjust="spacingAndGlyphs">WALK</text>
+      <!-- DEZELFDE ROUTE IN GEEL -->
+      <use
+        href="#walkRoute"
+        id="finishedPath"
+        class="letter-route finished"/>
+
+      <!-- DE PIN DIE HET PAD VOLGT -->
+      <g class="route-pin" id="routePin">
+        <circle class="pin-ring" r="14"/>
+        <circle class="pin-center" r="4"/>
       </g>
 
     </svg>
 
-    <span class="pin" id="pin">⌖</span>
-
   </section>
 
-  <footer>
+  <div class="timeline-area">
 
-    <div class="info">
-      <div class="date" id="date">
-        22.10.2026
-      </div>
+    <input
+      class="timeline"
+      id="timeline"
+      type="range"
+      min="0"
+      max="1000"
+      value="0"
+      step="1"
+      aria-label="Walk along the letters">
 
-      <div class="observation" id="observation">
-        The walk begins.
-      </div>
-    </div>
-
-    <div class="details">
-      <span id="day">DAY 001</span>
-      <span id="distance">0.0 KM</span>
-      <span id="time">00H 00M</span>
-    </div>
-
-    <input type="range"
-           id="timeline"
-           min="0"
-           max="59"
-           step="1"
-           value="0"
-           aria-label="Selecteer wandeldag">
-
-    <div class="timeline-labels">
-      <span>START — 22.10.2026</span>
-      <span>DESTINATION — UNKNOWN</span>
-    </div>
-
-  </footer>
+  </div>
 
 </main>
 
 <script>
 
-  /*
-    NEVER FINISHED — WALK
+/*
+  WALK 1
 
-    Alles is opgebouwd rond één getal:
-    de geselecteerde dag.
+  Slechts een interactie:
+  een traject door de typografie.
 
-    De tijdlijn en de typografie gebruiken
-    precies dezelfde voortgang.
-  */
+  0% = linksonder in W
+  100% = linksboven in W
+*/
 
-  const TOTAL_DAYS = 60;
-  const START_DATE = new Date(2026, 9, 22);
+const svg = document.getElementById("svg");
+const route = document.getElementById("walkRoute");
+const finished = document.getElementById("finishedPath");
+const pin = document.getElementById("routePin");
+const timeline = document.getElementById("timeline");
+const stage = document.getElementById("stage");
 
-  const observations = [
-    "The walk begins.",
-    "Something felt different today.",
-    "The same street. Another perspective.",
-    "A place that wasn't there before.",
-    "Nothing changed. Everything moved.",
-    "A different direction, a familiar feeling.",
-    "More distance. Less certainty.",
-    "An unexpected detail on the way.",
-    "Some things disappear slowly.",
-    "The destination is still unknown.",
-    "A familiar route became unfamiliar.",
-    "Another day. Another trace."
-  ];
+const length = route.getTotalLength();
 
-  /*
-    FICTIEVE DATA VOOR DE DEMO
+/*
+  DE GELE ROUTE WORDT GETEKEND
+  VIA DE ECHTE PADLENGTE.
 
-    Later kun je hier echte wandeldata
-    invullen of vanuit een apart
-    databestand inladen.
-  */
+  Dus NIET met een rechthoek
+  die van links naar rechts schuift.
+*/
 
-  const walks = Array.from(
-    { length: TOTAL_DAYS },
-    (_, i) => {
+finished.style.strokeDasharray = `0 ${length}`;
+finished.style.strokeDashoffset = "0";
 
-      const date = new Date(START_DATE);
-      date.setDate(date.getDate() + i);
+function updateWalk(value) {
 
-      const distance = i === 0
-        ? 0
-        : Number((3.2 + (i * 7 % 16)).toFixed(1));
-
-      const minutes = Math.round(distance * 14);
-
-      return {
-        id: i + 1,
-        date: date,
-        distance: distance,
-        minutes: minutes,
-        observation: observations[i % observations.length]
-      };
-    }
+  const progress = Math.max(
+    0,
+    Math.min(1, Number(value) / 1000)
   );
 
-  const timeline = document.getElementById("timeline");
-  const stage = document.getElementById("stage");
-  const progressRect = document.getElementById("progressRect");
+  const travelled = progress * length;
 
-  const dateElement = document.getElementById("date");
-  const dayElement = document.getElementById("day");
-  const distanceElement = document.getElementById("distance");
-  const timeElement = document.getElementById("time");
-  const observationElement =
-    document.getElementById("observation");
+  // Alleen de afgelegde padlengte wordt geel.
+  finished.style.strokeDasharray =
+    `${travelled} ${length + 1}`;
 
-  let selectedDay = 0;
+  // De pin volgt exact hetzelfde pad.
+  const point = route.getPointAtLength(travelled);
 
-  function formatDate(date) {
-    const dd = String(date.getDate()).padStart(2, "0");
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const yyyy = date.getFullYear();
+  pin.setAttribute(
+    "transform",
+    `translate(${point.x} ${point.y})`
+  );
 
-    return `${dd}.${mm}.${yyyy}`;
-  }
+  // De kleine slider loopt mee.
+  document.documentElement.style.setProperty(
+    "--progress",
+    (progress * 100) + "%"
+  );
 
-  function formatTime(minutes) {
-    const h = String(Math.floor(minutes / 60))
-      .padStart(2, "0");
+  timeline.value = Math.round(progress * 1000);
+}
 
-    const m = String(minutes % 60)
-      .padStart(2, "0");
+/* DE SLIDER */
 
-    return `${h}H ${m}M`;
-  }
+timeline.addEventListener("input", event => {
+  updateWalk(event.target.value);
+});
 
-  /*
-    Update alle onderdelen tegelijk.
-  */
+/*
+  KLIK OP DE LETTERROUTE.
 
-  function setDay(index) {
-    selectedDay = Math.max(
-      0,
-      Math.min(TOTAL_DAYS - 1, index)
-    );
+  Zoek het dichtstbijzijnde punt
+  van het volledige wandeltraject.
 
-    const walk = walks[selectedDay];
+  Zo kun je ook rechtstreeks
+  ergens op WALK stoppen.
+*/
 
-    const progress =
-      selectedDay / (TOTAL_DAYS - 1) * 100;
+function choosePoint(event) {
 
-    const progressPixels = progress * 10;
+  const svgPoint = svg.createSVGPoint();
+  svgPoint.x = event.clientX;
+  svgPoint.y = event.clientY;
 
-    // De gele lijn onthult de typografie.
-    progressRect.setAttribute(
-      "width",
-      progressPixels
-    );
+  const matrix = svg.getScreenCTM();
+  if (!matrix) return;
 
-    // Ook de tijdlijn wordt geel.
-    document.documentElement.style.setProperty(
-      "--progress",
-      progress + "%"
-    );
+  const position = svgPoint.matrixTransform(
+    matrix.inverse()
+  );
 
-    timeline.value = selectedDay;
+  const samples = 1200;
+  let nearestLength = 0;
+  let nearestDistance = Infinity;
 
-    // De tekst verandert mee.
-    dateElement.textContent = formatDate(walk.date);
+  for (let i = 0; i <= samples; i++) {
 
-    dayElement.textContent =
-      "DAY " + String(walk.id).padStart(3, "0");
+    const currentLength = (i / samples) * length;
+    const point = route.getPointAtLength(currentLength);
 
-    distanceElement.textContent =
-      walk.distance.toFixed(1) + " KM";
+    const dx = point.x - position.x;
+    const dy = point.y - position.y;
 
-    timeElement.textContent =
-      formatTime(walk.minutes);
+    const distance = dx * dx + dy * dy;
 
-    observationElement.textContent =
-      walk.observation;
-  }
-
-  /*
-    MET DE SLIDER NAVIGEREN
-  */
-
-  timeline.addEventListener("input", event => {
-    setDay(Number(event.target.value));
-  });
-
-  /*
-    RECHTSTREEKS OP WALK KLIKKEN
-
-    De horizontale positie bepaalt
-    welke dag geselecteerd wordt.
-  */
-
-  function chooseFromPointer(event) {
-    const rect = stage.getBoundingClientRect();
-
-    const x = (event.clientX - rect.left) / rect.width;
-
-    const index = Math.round(
-      Math.max(0, Math.min(1, x)) * (TOTAL_DAYS - 1)
-    );
-
-    setDay(index);
-  }
-
-  stage.addEventListener("pointerdown", event => {
-    stage.classList.add("pinned");
-    stage.setPointerCapture(event.pointerId);
-    chooseFromPointer(event);
-  });
-
-  stage.addEventListener("pointermove", event => {
-    if (event.buttons === 1) {
-      chooseFromPointer(event);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestLength = currentLength;
     }
-  });
+  }
 
-  /*
-    START DE WEBSITE
-  */
+  const value = nearestLength / length * 1000;
 
-  setDay(0);
+  updateWalk(value);
+}
+
+stage.addEventListener("pointerdown", event => {
+  stage.setPointerCapture(event.pointerId);
+  choosePoint(event);
+});
+
+stage.addEventListener("pointermove", event => {
+  if (event.buttons === 1) {
+    choosePoint(event);
+  }
+});
+
+/* BEGIN LINKSONDER */
+
+updateWalk(0);
 
 </script>
 
