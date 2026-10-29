@@ -1,1 +1,552 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALK 3 — Never Finished</title>
+
+<style>
+:root {
+  --wall: #f7f6f2;
+  --ink: #171717;
+  --grey: #888680;
+  --yellow: #eaff00;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--wall);
+  color: var(--ink);
+  font-family: Futura, Helvetica, Arial, sans-serif;
+}
+
+button, a { -webkit-tap-highlight-color: transparent; }
+
+header {
+  position: relative;
+  z-index: 5;
+  height: 60px;
+  padding: 0 clamp(18px, 3vw, 55px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+header a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+header a:hover { text-decoration: underline; }
+
+header span { color: var(--grey); }
+
+/* TELEFOON: EEN KUNSTWERK PER SCHERM */
+
+.mobile-exhibition {
+  display: block;
+}
+
+.swipe-gallery {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.swipe-gallery::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: calc(100dvh - 105px);
+  min-height: 0;
+  padding: 20px 7vw 35px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.art-space {
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.art-space img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 5px 20px rgba(0,0,0,.05);
+}
+
+.missing {
+  padding: 25px;
+  color: #888;
+  font: 12px Arial, sans-serif;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* HET MUSEUMPLAKKAATJE */
+
+.plaque {
+  width: 100%;
+  max-width: 340px;
+  flex-shrink: 0;
+  margin-top: 28px;
+  padding: 14px 0;
+  border-top: 1px solid #c9c7c0;
+  text-align: left;
+}
+
+.plaque-number {
+  font-size: 9px;
+  color: var(--grey);
+  letter-spacing: .12em;
+}
+
+.plaque-title {
+  margin: 9px 0 6px;
+  font-size: clamp(17px, 5vw, 24px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -.045em;
+}
+
+.plaque-note {
+  margin: 0;
+  color: #77756f;
+  font: 12px/1.5 Arial, sans-serif;
+}
+
+.mobile-bottom {
+  height: 45px;
+  padding: 0 7vw 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 10px;
+  color: var(--grey);
+  letter-spacing: .05em;
+}
+
+/* DESKTOP: VOLLEDIG FOTOGRAFISCH ARCHIEF */
+
+.desktop-exhibition {
+  display: none;
+}
+
+/* DETAILVENSTER OP MACBOOK */
+
+.viewer {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(247,246,242,.98);
+  padding: 55px 5vw;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewer.open { display: flex; }
+
+.viewer-inner {
+  display: flex;
+  align-items: center;
+  gap: 5vw;
+  width: min(1100px, 100%);
+  max-height: 85vh;
+}
+
+.viewer-inner img {
+  display: block;
+  max-width: 65%;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.viewer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.viewer-info h2 {
+  font-size: clamp(25px, 3vw, 48px);
+  line-height: 1;
+  letter-spacing: -.06em;
+}
+
+.viewer-info p {
+  font: 13px/1.5 Arial, sans-serif;
+  color: #666;
+}
+
+.close {
+  position: absolute;
+  right: 4vw;
+  top: 25px;
+  border: none;
+  background: none;
+  font: 12px Arial, sans-serif;
+  cursor: pointer;
+}
+
+/* VANAF 900PX VERANDERT DE HELE ERVARING */
+
+@media (min-width: 900px) {
+  .mobile-exhibition { display: none; }
+  .desktop-exhibition { display: block; }
+
+  .desktop-heading {
+    padding: 20px 5vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 10px;
+    color: var(--grey);
+    letter-spacing: .08em;
+  }
+
+  .archive-wall {
+    min-height: calc(100vh - 160px);
+    padding: 5vh 6vw 12vh;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(25px, 4vw, 75px);
+  }
+
+  .desktop-artwork {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+    flex: 0 1 var(--art-width, 220px);
+    min-width: 100px;
+  }
+
+  .desktop-artwork img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    box-shadow: 0 5px 18px rgba(0,0,0,.055);
+    transition: transform .25s ease;
+  }
+
+  .desktop-artwork:hover img {
+    transform: translateY(-5px);
+  }
+
+  .desktop-artwork span {
+    display: block;
+    margin-top: 12px;
+    color: var(--grey);
+    font-size: 10px;
+    letter-spacing: .08em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">← NEVER FINISHED</a>
+  <span>WALK / 003</span>
+</header>
+
+<!-- TELEFOON: SLIDER -->
+
+<main class="mobile-exhibition">
+
+  <div class="swipe-gallery" id="swipeGallery"></div>
+
+  <div class="mobile-bottom">
+    <span>← SWIPE →</span>
+    <span id="counter">01 / 05</span>
+  </div>
+
+</main>
+
+<!-- MACBOOK: VOLLEDIG ARCHIEF -->
+
+<main class="desktop-exhibition">
+
+  <div class="desktop-heading">
+    <span>WALK — OBSERVATION ARCHIVE</span>
+    <span id="archiveCount">005 WORKS</span>
+  </div>
+
+  <section class="archive-wall"
+           id="archiveWall"
+           aria-label="Observation archive">
+  </section>
+
+</main>
+
+<!-- DETAILVENSTER -->
+
+<div class="viewer" id="viewer"
+     role="dialog"
+     aria-modal="true"
+     aria-label="Artwork details">
+
+  <button class="close" id="close">CLOSE ×</button>
+
+  <div class="viewer-inner">
+    <img id="viewerImage" alt="">
+    <div class="viewer-info">
+      <span id="viewerDate"></span>
+      <h2 id="viewerTitle"></h2>
+      <p id="viewerNote"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+/*
+  JOUW WAARNEMINGEN
+
+  Dezelfde foto's als WALK 2.
+  Je hoeft niets opnieuw te uploaden.
+
+  Hier kun je later echte data,
+  teksten en nieuwe foto's toevoegen.
+*/
+
+const observations = [
+  {
+    date: "22.10.2026",
+    image: "beeld/huis-01.jpg",
+    title: "THE HOUSE GAVE UP.",
+    note: "The windows are still pretending."
+  },
+  {
+    date: "22.10.2026",
+    image: "beeld/plant-01.jpg",
+    title: "THE PLANT LOOKED SAD.",
+    note: "Nobody seemed particularly concerned."
+  },
+  {
+    date: "25.10.2026",
+    image: "beeld/straat-01.jpg",
+    title: "A VERY PRIVATE DISASTER.",
+    note: "Everyone walked past it."
+  },
+  {
+    date: "29.10.2026",
+    image: "beeld/huis-02.jpg",
+    title: "NOBODY LIVES HERE.",
+    note: "But someone still cuts the grass."
+  },
+  {
+    date: "02.11.2026",
+    image: "beeld/detail-01.jpg",
+    title: "STILL WAITING.",
+    note: "For what, exactly?"
+  }
+];
+
+const swipeGallery = document.getElementById("swipeGallery");
+const archiveWall = document.getElementById("archiveWall");
+const counter = document.getElementById("counter");
+const viewer = document.getElementById("viewer");
+
+const number = i =>
+  String(i + 1).padStart(3, "0");
+
+let lastFocus = null;
+
+/* FOTO TOEVOEGEN */
+
+function createImage(item) {
+  const img = document.createElement("img");
+  img.src = item.image;
+  img.alt = item.title;
+
+  img.onerror = () => {
+    const missing = document.createElement("div");
+    missing.className = "missing";
+    missing.textContent = "MISSING PHOTO: " + item.image;
+    img.replaceWith(missing);
+  };
+
+  return img;
+}
+
+/* MOBIELE GALERIJ */
+
+observations.forEach((item, i) => {
+
+  const slide = document.createElement("article");
+  slide.className = "slide";
+
+  const artSpace = document.createElement("div");
+  artSpace.className = "art-space";
+
+  artSpace.appendChild(createImage(item));
+
+  const plaque = document.createElement("div");
+  plaque.className = "plaque";
+
+  const small = document.createElement("div");
+  small.className = "plaque-number";
+  small.textContent = number(i) + " / " + item.date;
+
+  const title = document.createElement("h2");
+  title.className = "plaque-title";
+  title.textContent = item.title;
+
+  const note = document.createElement("p");
+  note.className = "plaque-note";
+  note.textContent = item.note;
+
+  plaque.append(small, title, note);
+  slide.append(artSpace, plaque);
+  swipeGallery.appendChild(slide);
+});
+
+/* TELLER TIJDENS SWIPEN */
+
+function updateCounter() {
+  const index = Math.max(0, Math.min(
+    observations.length - 1,
+    Math.round(
+      swipeGallery.scrollLeft /
+      Math.max(1, swipeGallery.clientWidth)
+    )
+  ));
+
+  counter.textContent =
+    String(index + 1).padStart(2, "0") +
+    " / " +
+    String(observations.length).padStart(2, "0");
+}
+
+swipeGallery.addEventListener(
+  "scroll", updateCounter, { passive: true }
+);
+
+/* DESKTOP DETAILVENSTER */
+
+function openViewer(item, i) {
+  lastFocus = document.activeElement;
+
+  document.getElementById("viewerImage").src = item.image;
+  document.getElementById("viewerImage").alt = item.title;
+  document.getElementById("viewerDate").textContent =
+    number(i) + " / " + item.date;
+  document.getElementById("viewerTitle").textContent =
+    item.title;
+  document.getElementById("viewerNote").textContent =
+    item.note;
+
+  viewer.classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("close").focus();
+}
+
+function closeViewer() {
+  viewer.classList.remove("open");
+  document.body.style.overflow = "";
+  document.getElementById("viewerImage").removeAttribute("src");
+  if (lastFocus) lastFocus.focus();
+}
+
+document.getElementById("close")
+  .addEventListener("click", closeViewer);
+
+viewer.addEventListener("click", event => {
+  if (event.target === viewer) closeViewer();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeViewer();
+});
+
+/*
+  DESKTOP ARCHIEF
+
+  Staande foto's zijn smaller.
+  Liggende foto's krijgen meer breedte.
+*/
+
+observations.forEach((item, i) => {
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "desktop-artwork";
+  button.setAttribute("aria-label", "View " + item.title);
+
+  const img = createImage(item);
+
+  img.onload = () => {
+    const ratio = img.naturalWidth / img.naturalHeight;
+
+    const width = Math.max(
+      150,
+      Math.min(350, ratio * 240)
+    );
+
+    button.style.setProperty("--art-width", width + "px");
+  };
+
+  const label = document.createElement("span");
+  label.textContent = number(i);
+
+  button.append(img, label);
+
+  button.addEventListener("click", () => {
+    openViewer(item, i);
+  });
+
+  archiveWall.appendChild(button);
+});
+
+document.getElementById("archiveCount").textContent =
+  String(observations.length).padStart(3, "0") + " WORKS";
+
+updateCounter();
+
+</script>
+</body>
+</html>
+
